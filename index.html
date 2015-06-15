@@ -1,27 +1,90 @@
+
 <!DOCTYPE html>
 <html>
   <head>
+    <link href="bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="style.css" rel="stylesheet" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
     <script src="jquery.js"></script>
+    <script src="jquery.timeago.js"></script>
     <script src="data_generator.js"></script>
+    <title>Twittler</title>
   </head>
   <body>
+     <header class="navbar navbar-default">
+       <h1>twittler</h1>
+    </header>
+    <section class="container">
+      <div class="allContainer">
+        <aside class="all pull-left">
+          <h2 class="allHeading">everyone's twittlin:</h2>
+          <button class="newTwittlins">get new twittlins</button>
+        </aside>
+      <div class="allTwittlins pull-left"></div>
+      </div> 
+      <div class="userContainer">
+        <aside class="user pull-left">
+          <h2 class="userHeading"></h2>
+          <button class="back">get everyone's twittlins</button>
+        </aside>
+        <div class="userTwittlins pull-left"></div>
+      </div>
+    </section>
+    <footer>
+        <p>Twittler for MakerSquare</p>
+    </footer>
     <script>
-
       $(document).ready(function(){
-        var $body = $('body');
-        $body.html('');
+        var $allTwittlins = $('.allTwittlins');
+        var $allContainer = $('.allContainer');
+        var $userContainer = $('.userContainer');
+        var $userHeading = $('.userHeading');
+        var $userTwittlins = $('.userTwittlins');
+        var $newTwittlins = $('.newTwittlins');
+        var $back = $('.back');
+  
+        var twittlins = function(username) {
+          if (!username) {
+            $userContainer.hide();
+            streams.home.forEach(function(twittlin) {
+              var $twittlin = $('<div></div>');
+              $twittlin.html('<button class="' + twittlin.user + '">@' + twittlin.user + ':</button><span class="message">' + twittlin.message + '</span><span class="time">' + jQuery.timeago(twittlin.created_at) + '</span>');
+              $twittlin.hide().prependTo($allTwittlins).fadeIn('slow');
+            });
+          } else {
+            $allContainer.fadeOut('slow', function() {
+              $userContainer.fadeIn('slow');
+            });   
+            $userHeading.html('');
+            $userHeading.append(username + '\'s twitlin:</h1>')
+            $userTwittlins.html('');
+            streams.users[username].forEach(function(twittlin) {
+              var $twittlin = $('<div></div>');
+              $twittlin.html('<button class="' + twittlin.user + '">@' + twittlin.user + ':</button><span class="message">' + twittlin.message + '</span><span class="time">' + jQuery.timeago(twittlin.created_at) + '</span>');
+              $twittlin.prependTo($userTwittlins);
+            });
+          }
+        };  
+ 
+        twittlins();
 
-        var index = streams.home.length - 1;
-        while(index >= 0){
-          var tweet = streams.home[index];
-          var $tweet = $('<div></div>');
-          $tweet.text('@' + tweet.user + ': ' + tweet.message);
-          $tweet.appendTo($body);
-          index -= 1;
-        }
+        $newTwittlins.on('click', 
+          function() {
+            twittlins();
+        });
+
+        $allTwittlins.on('click', 'button', function() {
+          var user = this.getAttribute('class');
+          twittlins(user);
+        });
+
+        $back.on('click', function() {
+          $userContainer.fadeOut('slow', function() {
+            $allContainer.fadeIn('slow');
+          })
+        });
 
       });
-
     </script>
   </body>
 </html>
